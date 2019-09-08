@@ -1,0 +1,5 @@
+vk-api==11.5.0
+instabot==0.52.0
+requests==2.22.0
+python-dotenv==0.10.3
+python-dateutil==2.8.0
