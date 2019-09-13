@@ -11,10 +11,14 @@ def main():
 
 def analyze_social_media():
     sm_name = parse_socmedia_name()
-    if sm_name == 'vk': vks.show_vkontakte_stats()
-    elif sm_name == 'instagram': insta.show_insta_stats()
-    elif sm_name == 'facebook': fb.show_facebook_stats()   
-    else: print('Wrong social media name. Read help.')
+    if sm_name == 'vk':
+        vks.show_vkontakte_stats()
+    elif sm_name == 'instagram':
+        insta.show_insta_stats()
+    elif sm_name == 'facebook':
+        fb.show_facebook_stats()   
+    else: 
+        print('Wrong social media name. Read help.')
 
 def parse_socmedia_name():
     parser = argparse.ArgumentParser(
