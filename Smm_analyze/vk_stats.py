@@ -89,8 +89,10 @@ def collect_latest_comments(comments, days_number=14):
 def collect_commenters(comments, vk_group_id):
     all_commenters = set()
     for comment in comments:
-        try: commenter_id = comment['from_id']
-        except KeyError: continue   
+        try: 
+            commenter_id = comment['from_id']
+        except KeyError: 
+            continue   
         if commenter_id == int(vk_group_id): continue
         all_commenters.add(commenter_id)
     return all_commenters
@@ -99,8 +101,10 @@ def get_all_likers(vk, comments, vk_group_id):
     all_likers = set()
     processed_posts = []
     for comment in comments:
-        try: post_id = comment['post_id']
-        except KeyError: continue
+        try: 
+            post_id = comment['post_id']
+        except KeyError: 
+            continue
         if post_id in processed_posts: continue
         post_likers = get_post_likers(vk, vk_group_id, post_id)
         all_likers.update(post_likers)
