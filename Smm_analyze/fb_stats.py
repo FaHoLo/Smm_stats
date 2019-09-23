@@ -98,15 +98,16 @@ def collect_reaction_stats(all_reactions):
         user_id = reaction['id']
         reaction_type = reaction['type']
         if not user_id in reaction_stats:
-            reaction_stats.update({user_id: {
-                                    'LIKE': 0,
-                                    'LOVE': 0,
-                                    'WOW': 0,
-                                    'HAHA': 0, 
-                                    'SAD': 0, 
-                                    'ANGRY': 0, 
-                                    'THANKFUL': 0,
-                                }
+            reaction_stats.update({
+                user_id: {
+                    'LIKE': 0,
+                    'LOVE': 0,
+                    'WOW': 0,
+                    'HAHA': 0, 
+                    'SAD': 0, 
+                    'ANGRY': 0, 
+                    'THANKFUL': 0,
+                }
             })
         reaction_stats[user_id][reaction_type] += 1
     return reaction_stats
