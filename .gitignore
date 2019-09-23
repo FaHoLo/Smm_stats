@@ -9,6 +9,7 @@ skipped.txt
 unfollowed.txt
 whitelist.txt
 *.checkpoint
+*.json
 
 #Test files
 all_comments.txt
