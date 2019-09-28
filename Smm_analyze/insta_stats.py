@@ -37,8 +37,8 @@ def log_into_instagram(bot):
 
 def get_all_comments_insta(bot, all_posts):
     all_comments = {}
-    for post in all_posts:
-        all_comments.update({post: bot.get_media_comments_all(post)})
+    for post_id in all_posts:
+        all_comments[post_id] = bot.get_media_comments_all(post)
     return all_comments
 
 def collect_latest_comments_insta(all_comments, days_number=90):
