@@ -18,7 +18,7 @@ def get_vkontakte_core_audience():
     vk_group_id = vk.groups.getById(group_ids=company_name)[0]['id']
     vk_group_id = f'-{vk_group_id}'
     all_posts = get_all_posts_vk(vk, vk_group_id)
-    all_comments = get_all_comments_vk(vk, vk_group_id, all_posts)
+    all_comments = [comment for post in all_posts for comment in get_post_comments(vk, post['id'], vk_group_id)]
     latest_comments = collect_latest_comments(all_comments)
     all_commenters = collect_commenters(latest_comments, vk_group_id)
     all_likers = get_all_likers(vk, latest_comments, vk_group_id)
@@ -43,13 +43,6 @@ def get_all_posts_vk(vk, vk_group_id):
         fetched_posts_number += count
         all_posts.extend(response['items'])
     return all_posts
-
-def get_all_comments_vk(vk, vk_group_id, all_posts):
-    all_comments = []
-    for post in all_posts:
-        post_comments = get_post_comments(vk, post['id'], vk_group_id)
-        all_comments.extend(post_comments) 
-    return all_comments
 
 def get_post_comments(vk, post_id, group_id):
     count = 100
@@ -79,11 +72,10 @@ def collect_thread_comments(fetched_comments, fetched_comments_number):
 
 def collect_latest_comments(comments, days_number=14):
     now_time = datetime.now()
-    latest_comments = []
-    for comment in comments:
-        comment_time = datetime.fromtimestamp(comment['date'])
-        if now_time - comment_time > timedelta(days=days_number): continue
-        latest_comments.append(comment)
+    latest_comments = [
+        comment for comment in comments
+        if now_time - datetime.fromtimestamp(comment['date']) <= timedelta(days=days_number)
+    ]
     return latest_comments
 
 def collect_commenters(comments, vk_group_id):
