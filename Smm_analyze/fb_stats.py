@@ -51,7 +51,6 @@ def get_all_posts_fb(group_id):
     response = make_fb_api_request(method_name, payload)
     fetched_posts = response['data']
     all_posts = [post['id'] for post in fetched_posts]
-    have_new_page = True
     while True:
         fetched_posts, response = fetch_next_page_data(response)
         if not fetched_posts: break
@@ -67,29 +66,20 @@ def fetch_next_page_data(response):
 
 def get_all_comments_fb(all_posts):
     payload = {'filter': 'stream',}
-    all_comments = []
-    for post in all_posts:
-        method_name = f'{post}/comments'
-        response = make_fb_api_request(method_name, payload)
-        all_comments.extend(response['data'])
+    all_comments = [comment for post in all_posts for comment in make_fb_api_request(f'{post}/comments', payload)['data']]
     return all_comments
 
 def collect_latest_commenters_fb(all_comments, days_number=30):
     now_time = datetime.now(timezone.utc)
-    latest_commenters = set()
-    for comment in all_comments:
-        comment_time = dateparser.parse(comment['created_time'])
-        if now_time - comment_time > timedelta(days=days_number): continue
-        latest_commenters.add(comment['from']['id'])
+    latest_commenters = {
+        comment['from']['id'] for comment in all_comments
+        if now_time - dateparser.parse(comment['created_time']) <= timedelta(days=days_number)
+    }
     return latest_commenters
 
 def get_all_reactions(all_posts):
     payload = {}
-    all_reactions = []
-    for post in all_posts:
-        method_name = f'{post}/reactions'
-        response = make_fb_api_request(method_name, payload)
-        all_reactions.extend(response['data'])
+    all_reactions = [reaction for post in all_posts for reaction in make_fb_api_request(f'{post}/reactions', payload)['data']]
     return all_reactions
 
 def collect_reaction_stats(all_reactions):
