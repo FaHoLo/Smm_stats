@@ -1,16 +1,19 @@
 import os
-import vk_api
-from dotenv import load_dotenv
 from datetime import datetime, timedelta
+
+from dotenv import load_dotenv
+import vk_api
 
 
 def main():
     load_dotenv()
     show_vkontakte_stats()
 
+
 def show_vkontakte_stats():
     core_audience = get_vkontakte_core_audience()
     print('Core audience:\n', core_audience)
+
 
 def get_vkontakte_core_audience():
     vk = customize_vk_api()
@@ -22,15 +25,17 @@ def get_vkontakte_core_audience():
     latest_comments = collect_latest_comments(all_comments)
     all_commenters = collect_commenters(latest_comments, vk_group_id)
     all_likers = get_all_likers(vk, latest_comments, vk_group_id)
-    core_audience = all_commenters.intersection(all_likers) 
+    core_audience = all_commenters.intersection(all_likers)
     return core_audience
 
+
 def customize_vk_api():
-    vk_service_key = os.getenv('VK_SERVICE_KEY')    
+    vk_service_key = os.getenv('VK_SERVICE_KEY')
     vk_api_version = '5.101'
     vk_session = vk_api.VkApi(token=vk_service_key, api_version=vk_api_version)
     vk = vk_session.get_api()
     return vk
+
 
 def get_all_posts_vk(vk, vk_group_id):
     posts_number = 101
@@ -44,10 +49,11 @@ def get_all_posts_vk(vk, vk_group_id):
         all_posts.extend(response['items'])
     return all_posts
 
+
 def get_post_comments(vk, post_id, group_id):
     count = 100
     comments_number = 101
-    fetched_comments_number = 0 
+    fetched_comments_number = 0
     post_comments = []
     while fetched_comments_number < comments_number:
         response = vk.wall.getComments(owner_id=group_id, post_id=post_id, thread_items_count=10,
@@ -56,19 +62,21 @@ def get_post_comments(vk, post_id, group_id):
         fetched_comments = response['items']
         post_comments.extend(fetched_comments)
         fetched_comments_number += count
-        thread_comments, fetched_comments_number = collect_thread_comments(fetched_comments, 
+        thread_comments, fetched_comments_number = collect_thread_comments(fetched_comments,
                                                                            fetched_comments_number)
         post_comments.extend(thread_comments)
     return post_comments
+
 
 def collect_thread_comments(fetched_comments, fetched_comments_number):
     thread_comments = []
     for comment in fetched_comments:
         number_of_thread_comments = comment['thread']['count']
         if number_of_thread_comments:
-            thread_comments.extend(comment['thread']['items']) 
+            thread_comments.extend(comment['thread']['items'])
             fetched_comments_number += number_of_thread_comments
     return thread_comments, fetched_comments_number
+
 
 def collect_latest_comments(comments, days_number=14):
     now_time = datetime.now()
@@ -78,30 +86,35 @@ def collect_latest_comments(comments, days_number=14):
     ]
     return latest_comments
 
+
 def collect_commenters(comments, vk_group_id):
     all_commenters = set()
     for comment in comments:
-        try: 
+        try:
             commenter_id = comment['from_id']
-        except KeyError: 
-            continue   
-        if commenter_id == int(vk_group_id): continue
+        except KeyError:
+            continue
+        if commenter_id == int(vk_group_id):
+            continue
         all_commenters.add(commenter_id)
     return all_commenters
+
 
 def get_all_likers(vk, comments, vk_group_id):
     all_likers = set()
     processed_posts = []
     for comment in comments:
-        try: 
+        try:
             post_id = comment['post_id']
-        except KeyError: 
+        except KeyError:
             continue
-        if post_id in processed_posts: continue
+        if post_id in processed_posts:
+            continue
         post_likers = get_post_likers(vk, vk_group_id, post_id)
         all_likers.update(post_likers)
         processed_posts.append(post_id)
     return all_likers
+
 
 def get_post_likers(vk, vk_group_id, post_id):
     likes_number = 1001
@@ -115,6 +128,7 @@ def get_post_likers(vk, vk_group_id, post_id):
         fetched_likes_number += count
         post_likers.extend(response['items'])
     return post_likers
+
 
 if __name__ == '__main__':
     main()
