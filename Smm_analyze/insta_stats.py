@@ -1,22 +1,25 @@
-import os
-from instabot import Bot
-from dotenv import load_dotenv
-from datetime import datetime, timedelta
 from collections import Counter
+from datetime import datetime, timedelta
+import os
+
+from dotenv import load_dotenv
+from instabot import Bot
 
 
 def main():
     load_dotenv()
     show_insta_stats()
 
+
 def show_insta_stats():
     comments_top, posts_top = get_instagram_stats()
     print(
-        'Comments top:\n', 
+        'Comments top:\n',
         comments_top,
-        '\nPosts top:\n', 
+        '\nPosts top:\n',
         posts_top,
     )
+
 
 def get_instagram_stats():
     bot = Bot()
@@ -30,10 +33,12 @@ def get_instagram_stats():
     posts_top = collect_posts_top(latest_comments, company_id)
     return comments_top, posts_top
 
+
 def log_into_instagram(bot):
     insta_login = os.getenv('INSTA_LOGIN')
     insta_password = os.getenv('INSTA_PASSWORD')
     bot.login(username=insta_login, password=insta_password)
+
 
 def collect_latest_comments_insta(all_comments, days_number=90):
     now_time = datetime.utcnow()
@@ -46,12 +51,14 @@ def collect_latest_comments_insta(all_comments, days_number=90):
     }
     return latest_comments
 
+
 def collect_comments_top(comments, company_id):
     comments_top = Counter()
     for commenters in comments.values():
         comments_top.update(commenters)
     del comments_top[company_id]
     return dict(comments_top.most_common())
+
 
 def collect_posts_top(comments, company_id):
     posts_top = Counter()
@@ -60,6 +67,7 @@ def collect_posts_top(comments, company_id):
         posts_top.update(post_commenters)
     del posts_top[company_id]
     return dict(posts_top.most_common())
+
 
 if __name__ == '__main__':
     main()
